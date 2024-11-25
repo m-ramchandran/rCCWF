@@ -1,12 +1,25 @@
+#' @import rlang
+NULL
+
 #' Create clusters from training data
+#'
 #' @param train_data Training dataset (tibble/data.frame)
 #' @param n_clusters Number of clusters to create
 #' @param outcome_col Name of outcome column
+#'
+#' @importFrom recipes recipe step_normalize all_predictors prep bake
+#' @importFrom dplyr select all_of bind_cols group_split
+#' @importFrom purrr keep map
+#' @importFrom stats kmeans
+#'
 #' @return List containing cluster assignments and clustered data
 #' @export
 create_clusters <- function(train_data, n_clusters, outcome_col = "y") {
   # Setup recipe for normalization
-  cluster_recipe <- recipes::recipe(~., data = dplyr::select(train_data, -dplyr::all_of(outcome_col))) |>
+  cluster_recipe <- recipes::recipe(
+    ~.,
+    data = dplyr::select(train_data, -dplyr::all_of(outcome_col))
+  ) |>
     recipes::step_normalize(recipes::all_predictors())
 
   # Prepare data for clustering
@@ -26,9 +39,9 @@ create_clusters <- function(train_data, n_clusters, outcome_col = "y") {
     train_data,
     cluster = factor(kmeans_fit$cluster)
   ) |>
-    dplyr::group_split(cluster) |>
+    dplyr::group_split(.data$cluster) |>
     purrr::keep(~ nrow(.) > 2) |> # Remove any clusters with 2 or fewer observations
-    purrr::map(~ dplyr::select(., -cluster))
+    purrr::map(~ dplyr::select(., -"cluster"))
 
   list(
     clusters = clustered_data,

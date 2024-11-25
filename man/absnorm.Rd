@@ -7,13 +7,18 @@
 absnorm(vec, max.norm = FALSE)
 }
 \arguments{
-\item{vec}{Vector to normalize}
+\item{vec}{Numeric vector to normalize}
 
-\item{max.norm}{Logical, whether to use maximum normalization}
+\item{max.norm}{Logical, whether to use maximum normalization (default: FALSE)}
 }
 \value{
-Normalized vector
+Normalized vector where each element is multiplied by its original sign
+and divided by the sum of absolute differences from min/max
 }
 \description{
 Absolute normalization of a vector
+}
+\examples{
+absnorm(c(-2, 1, 3))
+absnorm(c(-2, 1, 3), max.norm = TRUE)
 }

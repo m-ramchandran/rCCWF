@@ -14,7 +14,8 @@ sim_data_monte(nclusters, ncoef, ntest)
 \item{ntest}{Number of test datasets to simulate}
 }
 \value{
-List containing two sublists: 'cluster_list' has the simulated training clusters, and 'test_list' has the simulated test sets
+List containing two sublists: 'cluster_list' has the simulated training clusters,
+and 'test_list' has the simulated test sets
 }
 \description{
 Simulate non-gaussian clusters using the 'monte' function

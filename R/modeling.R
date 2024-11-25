@@ -1,3 +1,6 @@
+#' @import rlang
+NULL
+
 #' Fit a Random Forest Model
 #'
 #' @param data A data frame or tibble containing the training data
@@ -5,6 +8,8 @@
 #'        (default: "y")
 #' @param ntrees Integer specifying the number of trees in the forest
 #'        (default: 100)
+#'
+#' @importFrom parsnip rand_forest set_engine fit
 #'
 #' @return A fitted random forest model object of class 'model_fit'
 rf_fit <- function(data, outcome_col, ntrees = 100) {
@@ -16,24 +21,33 @@ rf_fit <- function(data, outcome_col, ntrees = 100) {
 #' Make Predictions with a Fitted Random Forest Model
 #'
 #' @param model A fitted model object from rf_fit()
-#' @param newdata A data frame or tibble containing new data for prediction, with same variables as the training dataset
+#' @param newdata A data frame or tibble containing new data for prediction
+#'
+#' @importFrom stats predict
 #'
 #' @return A numeric vector of predictions
 rf_predict <- function(model, newdata) {
   stats::predict(model, new_data = newdata)$.pred
 }
 
-
 #' Fit cross-cluster weighted forests method
+#'
 #' @param train_data Either a single dataframe or a list of pre-clustered dataframes
 #' @param outcome_col Name of outcome column
 #' @param model_fit Function to fit models (defaults to rf_fit)
 #' @param model_predict Function to make predictions (defaults to rf_predict)
 #' @param merged_trees Number of trees for merged model
 #' @param cluster_trees Number of trees for individual cluster models
-#' @param cluster_ind Boolean representing if we should perform k-means clustering on the merged train_data or keep the original structure
+#' @param cluster_ind Boolean representing if we should perform k-means clustering
 #' @param n_clusters Number of clusters for k-means. Only used if cluster_ind = TRUE
 #' @param n_cores Number of cores for parallel processing (default = 2)
+#'
+#' @importFrom future plan multisession sequential
+#' @importFrom dplyr bind_rows select pull
+#' @importFrom furrr future_map furrr_options
+#' @importFrom glmnet cv.glmnet
+#' @importFrom stats coef setNames predict
+#'
 #' @return List of fitted models and weights
 #' @export
 crosscluster_fit <- function(train_data,
@@ -51,7 +65,6 @@ crosscluster_fit <- function(train_data,
 
   # Process training data
   if (!is.list(train_data)) {
-    # Create clusters if single dataframe provided
     clusters <- create_clusters(
       train_data = train_data,
       n_clusters = n_clusters,
@@ -59,14 +72,14 @@ crosscluster_fit <- function(train_data,
     )
     clusters_list <- clusters$clusters
   } else {
-    if (cluster_ind == TRUE){
+    if (cluster_ind == TRUE) {
       clusters <- create_clusters(
         train_data = train_data |> dplyr::bind_rows(),
         n_clusters = n_clusters,
         outcome_col = outcome_col
       )
       clusters_list <- clusters$clusters
-    } else{
+    } else {
       clusters_list <- train_data
     }
   }
@@ -78,47 +91,47 @@ crosscluster_fit <- function(train_data,
   merged_model <- rf_fit(merged_data, outcome_col, merged_trees)
 
   # Create workflow for each cluster
-  model_workflows <- furrr::future_map(clusters_list, function(cluster_data) {
-    model_fit(cluster_data, outcome_col, cluster_trees)
-  },
-  .options = furrr::furrr_options(seed = TRUE)
+  model_workflows <- furrr::future_map(
+    clusters_list,
+    function(cluster_data) {
+      model_fit(cluster_data, outcome_col, cluster_trees)
+    },
+    .options = furrr::furrr_options(seed = TRUE)
   )
 
   # Prepare training predictions for stacking
-  train_preds <- furrr::future_map(model_workflows, function(model) {
-    model_predict(model, dplyr::select(merged_data, -all_of(outcome_col)))
-  },
-  .options = furrr::furrr_options(seed = TRUE)
+  train_preds <- furrr::future_map(
+    model_workflows,
+    function(model) {
+      model_predict(model, dplyr::select(merged_data, -dplyr::all_of(outcome_col)))
+    },
+    .options = furrr::furrr_options(seed = TRUE)
   ) |>
     dplyr::bind_cols() |>
     stats::setNames(paste0("model_", seq_along(model_workflows)))
 
-
-  # Prepare data for stacking
+  # Rest of the function remains the same, but with explicit namespacing
   stack_x <- as.matrix(train_preds)
   stack_y <- dplyr::pull(merged_data, outcome_col)
 
-  # Fit ridge stacking with cross-validation
   stack_ridge_cv <- glmnet::cv.glmnet(
     x = stack_x,
     y = stack_y,
-    alpha = 0, # ridge regression
+    alpha = 0,
     nfolds = 5,
     parallel = TRUE,
     standardize = TRUE
   )
 
-  # Fit lasso stacking with cross-validation
   stack_lasso_cv <- glmnet::cv.glmnet(
     x = stack_x,
     y = stack_y,
-    alpha = 1, # lasso regression
+    alpha = 1,
     nfolds = 5,
     parallel = TRUE,
     standardize = TRUE
   )
 
-  # Store lambda sequences and coefficients
   ridge_coef <- stats::coef(stack_ridge_cv, s = "lambda.min")
   lasso_coef <- stats::coef(stack_lasso_cv, s = "lambda.min")
 
@@ -136,27 +149,32 @@ crosscluster_fit <- function(train_data,
   )
 }
 
-
 #' Make predictions using fitted CCWF models
+#'
 #' @param ccwf_fit Output from crosscluster_fit function
 #' @param new_data New data for predictions
+#'
+#' @importFrom stats predict
+#' @importFrom purrr map
+#' @importFrom dplyr bind_cols
+#' @importFrom tibble tibble
+#'
 #' @return Tibble with predictions from all methods
 #' @export
 crosscluster_predict <- function(ccwf_fit, new_data) {
-  # Get merged model predictions
   merged_preds <- stats::predict(ccwf_fit$merged_model, new_data)$.pred
 
-  # Get individual model predictions
-  individual_preds <- purrr::map(ccwf_fit$cluster_models, function(model) {
-    ccwf_fit$model_predict(model, new_data)
-  }) |>
+  individual_preds <- purrr::map(
+    ccwf_fit$cluster_models,
+    function(model) {
+      ccwf_fit$model_predict(model, new_data)
+    }
+  ) |>
     dplyr::bind_cols() |>
     stats::setNames(paste0("model_", seq_along(ccwf_fit$cluster_models)))
 
-  # Calculate unweighted average
   unweighted_preds <- rowMeans(individual_preds)
 
-  # Get stacking predictions using optimal lambda values
   stack_ridge_preds <- stats::predict(
     ccwf_fit$stack_ridge,
     newx = as.matrix(individual_preds),
@@ -169,7 +187,6 @@ crosscluster_predict <- function(ccwf_fit, new_data) {
     s = "lambda.min"
   )[, 1]
 
-  # Combine all predictions with additional information
   tibble::tibble(
     merged = merged_preds,
     unweighted = unweighted_preds,

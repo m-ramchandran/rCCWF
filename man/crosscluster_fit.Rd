@@ -29,7 +29,7 @@ crosscluster_fit(
 
 \item{cluster_trees}{Number of trees for individual cluster models}
 
-\item{cluster_ind}{Boolean representing if we should perform k-means clustering on the merged train_data or keep the original structure}
+\item{cluster_ind}{Boolean representing if we should perform k-means clustering}
 
 \item{n_clusters}{Number of clusters for k-means. Only used if cluster_ind = TRUE}
 

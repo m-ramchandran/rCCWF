@@ -9,7 +9,7 @@ rf_predict(model, newdata)
 \arguments{
 \item{model}{A fitted model object from rf_fit()}
 
-\item{newdata}{A data frame or tibble containing new data for prediction, with same variables as the training dataset}
+\item{newdata}{A data frame or tibble containing new data for prediction}
 }
 \value{
 A numeric vector of predictions

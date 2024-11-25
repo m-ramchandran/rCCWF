@@ -2,7 +2,7 @@
 % Please edit documentation in R/workflow.R
 \name{cluster_ensemble_workflow}
 \alias{cluster_ensemble_workflow}
-\title{Complete clustering ensemble workflow}
+\title{Cluster Ensemble Workflow}
 \usage{
 cluster_ensemble_workflow(
   train_data,
@@ -17,27 +17,24 @@ cluster_ensemble_workflow(
 )
 }
 \arguments{
-\item{train_data}{Either a single dataframe or a list of pre-clustered dataframes}
+\item{train_data}{Training data}
 
-\item{test_data}{Either a single dataframe or a list of test dataframes}
+\item{test_data}{Test data}
 
-\item{n_clusters}{Number of clusters to create if train_data is a single dataframe}
+\item{n_clusters}{Number of clusters (default: 5)}
 
-\item{outcome_col}{Name of outcome column}
+\item{outcome_col}{Name of outcome column (default: "y")}
 
-\item{merged_trees}{Number of trees for merged model}
+\item{merged_trees}{Number of merged trees (default: 500)}
 
-\item{cluster_trees}{Number of trees for individual cluster models}
+\item{cluster_trees}{Number of cluster trees (default: 100)}
 
-\item{cluster_ind}{Boolean representing if we should perform k-means clustering on the merged train_data or keep the original structure}
+\item{cluster_ind}{Clustering indicator (default: TRUE)}
 
-\item{n_cores}{Number of cores for parallel processing (default = 2)}
+\item{n_cores}{Number of cores for parallel processing (default: 2)}
 
-\item{seed}{Random seed for reproducibility}
-}
-\value{
-List containing fitted models, predictions, and performance metrics
+\item{seed}{Random seed (default: NULL)}
 }
 \description{
-Complete clustering ensemble workflow
+Implements a cluster ensemble workflow for prediction
 }

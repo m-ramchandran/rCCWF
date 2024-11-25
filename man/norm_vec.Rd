@@ -10,8 +10,11 @@ norm_vec(x)
 \item{x}{Numeric vector to normalize}
 }
 \value{
-Normalized vector
+Normalized vector with Euclidean (L2) norm
 }
 \description{
 Normalize a vector
+}
+\examples{
+norm_vec(c(3, 4)) # Should return 5
 }

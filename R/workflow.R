@@ -1,16 +1,28 @@
-#' Complete clustering ensemble workflow
+#' @import rlang
+NULL
+
+utils::globalVariables(c(".metric", ".estimate", "truth", "estimate", "method", "rmse", "cluster"))
+
+#' Cluster Ensemble Workflow
 #'
-#' @param train_data Either a single dataframe or a list of pre-clustered dataframes
-#' @param test_data Either a single dataframe or a list of test dataframes
-#' @param n_clusters Number of clusters to create if train_data is a single dataframe
-#' @param outcome_col Name of outcome column
-#' @param merged_trees Number of trees for merged model
-#' @param cluster_trees Number of trees for individual cluster models
-#' @param cluster_ind Boolean representing if we should perform k-means clustering on the merged train_data or keep the original structure
-#' @param n_cores Number of cores for parallel processing (default = 2)
-#' @param seed Random seed for reproducibility
+#' @description Implements a cluster ensemble workflow for prediction
 #'
-#' @return List containing fitted models, predictions, and performance metrics
+#' @param train_data Training data
+#' @param test_data Test data
+#' @param n_clusters Number of clusters (default: 5)
+#' @param outcome_col Name of outcome column (default: "y")
+#' @param merged_trees Number of merged trees (default: 500)
+#' @param cluster_trees Number of cluster trees (default: 100)
+#' @param cluster_ind Clustering indicator (default: TRUE)
+#' @param n_cores Number of cores for parallel processing (default: 2)
+#' @param seed Random seed (default: NULL)
+#'
+#' @importFrom yardstick rmse
+#' @importFrom tidyr pivot_wider
+#' @importFrom dplyr bind_rows group_by summarize
+#' @importFrom stats sd
+#' @importFrom purrr map map_df reduce
+#'
 #' @export
 cluster_ensemble_workflow <- function(train_data,
                                       test_data,
@@ -56,26 +68,26 @@ cluster_ensemble_workflow <- function(train_data,
           truth = test_set[[outcome_col]],
           estimate = preds
         ),
-        truth = truth,
-        estimate = estimate
+        truth = "truth",  # Changed to string
+        estimate = "estimate"  # Changed to string
       )
     }, .id = "method")
 
     # Reshape metrics for easier reading
     metrics |>
       tidyr::pivot_wider(
-        names_from = .metric,
-        values_from = .estimate
+        names_from = .data$.metric,
+        values_from = .data$.estimate
       )
   })
 
   # Calculate average performance if multiple test sets
   avg_performance <- if (length(test_data) > 1) {
     purrr::reduce(performance_list, dplyr::bind_rows) |>
-      dplyr::group_by(method) |>
+      dplyr::group_by(.data$method) |>
       dplyr::summarize(
-        avg_rmse = mean(rmse),
-        sd_rmse = stats::sd(rmse),
+        avg_rmse = mean(.data$rmse),
+        sd_rmse = stats::sd(.data$rmse),
         .groups = "drop"
       )
   } else {
@@ -91,18 +103,19 @@ cluster_ensemble_workflow <- function(train_data,
   )
 }
 
-
 #' Plot performance comparison across methods
 #'
 #' @param workflow_results Output from cluster_ensemble_workflow
 #' @return ggplot object
+#'
+#' @importFrom ggplot2 ggplot aes geom_col geom_errorbar labs theme_minimal theme element_text
+#' @importFrom dplyr mutate
+#'
 #' @export
 plot_performance_comparison <- function(workflow_results) {
   metric <- "rmse"
-
   # Extract performance data
   perf_data <- workflow_results$average_performance
-
 
   # Create plot
   metric_col <- if (length(workflow_results$predictions) > 1) {
@@ -112,14 +125,14 @@ plot_performance_comparison <- function(workflow_results) {
   }
 
   sd_col <- paste0("sd_", metric)
-
-  if (!(sd_col %in% colnames(perf_data))){
-    perf_data <- perf_data |> dplyr::mutate(!!sd_col := 0)
+  if (!(sd_col %in% colnames(perf_data))) {
+    perf_data <- perf_data |>
+      dplyr::mutate("{sd_col}" := 0)
   }
 
   plot <- ggplot2::ggplot(
     perf_data,
-    ggplot2::aes(x = method, y = .data[[metric_col]])
+    ggplot2::aes(x = .data$method, y = .data[[metric_col]])
   ) +
     ggplot2::geom_col(fill = "steelblue", alpha = 0.7) +
     ggplot2::geom_errorbar(
