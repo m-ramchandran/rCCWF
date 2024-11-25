@@ -20,9 +20,9 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-The `rCCWF` package implements Cross-Cluster Weighted Forests, a novel ensemble learning approach that combines clustering with random forests to improve prediction accuracy. This method is particularly effective when dealing with heterogeneous data that naturally forms clusters or when different subpopulations exist within your dataset.
+The `rCCWF` package implements Cross-Cluster Weighted Forests, an ensemble learning approach that combines clustering with random forests to improve prediction accuracy. This method is particularly effective when dealing with heterogeneous data that naturally forms clusters or when different subpopulations exist within your dataset.
 
-First, let's load the necessary packages:
+Load the necessary packages:
 
 ```{r}
 library(rCCWF)
@@ -32,7 +32,7 @@ library(ggplot2)
 
 ## Basic Usage
 
-Let's start with a simple example using simulated data:
+Simple example using simulated data:
 
 ```{r}
 # Set seed for reproducibility
@@ -98,8 +98,6 @@ head(results$predictions[[1]])
 
 ## Performance Comparison
 
-Let's compare the performance of different methods:
-
 ```{r}
 # For multiple test sets
 print(results$average_performance)
@@ -110,7 +108,7 @@ plot_performance_comparison(results)
 
 ## Working with Single Datasets
 
-For a single dataset that needs to be clustered:
+For a single dataset that needs to be clustered (set cluster_ind = TRUE in this case):
 
 ```{r}
 # Combine training data

@@ -3,13 +3,13 @@ Cross-Cluster Weighted Forests
 
 ## Introduction
 
-The `rCCWF` package implements Cross-Cluster Weighted Forests, a novel
+The `rCCWF` package implements Cross-Cluster Weighted Forests, an
 ensemble learning approach that combines clustering with random forests
 to improve prediction accuracy. This method is particularly effective
 when dealing with heterogeneous data that naturally forms clusters or
 when different subpopulations exist within your dataset.
 
-First, let’s load the necessary packages:
+Load the necessary packages:
 
 ``` r
 library(rCCWF)
@@ -19,7 +19,7 @@ library(ggplot2)
 
 ## Basic Usage
 
-Let’s start with a simple example using simulated data:
+Simple example using simulated data:
 
 ``` r
 # Set seed for reproducibility
@@ -71,10 +71,10 @@ print(results$average_performance)
 #> # A tibble: 4 × 3
 #>   method      avg_rmse sd_rmse
 #>   <chr>          <dbl>   <dbl>
-#> 1 merged          6.20   0.208
-#> 2 stack_lasso     4.82   0.520
-#> 3 stack_ridge     4.84   0.510
-#> 4 unweighted      7.52   0.113
+#> 1 merged          6.40   0.385
+#> 2 stack_lasso     5.15   0.724
+#> 3 stack_ridge     5.16   0.721
+#> 4 unweighted      7.75   0.419
 ```
 
 ## Understanding the Predictions
@@ -93,17 +93,15 @@ head(results$predictions[[1]])
 #> # A tibble: 6 × 4
 #>   merged unweighted stack_ridge stack_lasso
 #>    <dbl>      <dbl>       <dbl>       <dbl>
-#> 1   5.18       3.74        1.53        1.21
-#> 2   4.80       4.98        5.11        5.29
-#> 3  17.0       13.2        22.0        22.2 
-#> 4   8.26       7.74       10.1         9.92
-#> 5  -1.20       3.25        1.49        1.63
-#> 6  16.3       11.2        17.8        18.0
+#> 1  3.99        3.60       1.94        1.97 
+#> 2  4.18        4.72       4.45        4.59 
+#> 3 18.7        12.8       20.8        21.0  
+#> 4  9.81        7.38      10.3        10.6  
+#> 5 -0.754       2.70       0.319       0.399
+#> 6 18.2        12.2       20.2        20.6
 ```
 
 ## Performance Comparison
-
-Let’s compare the performance of different methods:
 
 ``` r
 # For multiple test sets
@@ -111,10 +109,10 @@ print(results$average_performance)
 #> # A tibble: 4 × 3
 #>   method      avg_rmse sd_rmse
 #>   <chr>          <dbl>   <dbl>
-#> 1 merged          6.20   0.208
-#> 2 stack_lasso     4.82   0.520
-#> 3 stack_ridge     4.84   0.510
-#> 4 unweighted      7.52   0.113
+#> 1 merged          6.40   0.385
+#> 2 stack_lasso     5.15   0.724
+#> 3 stack_ridge     5.16   0.721
+#> 4 unweighted      7.75   0.419
 
 # Visualize performance
 plot_performance_comparison(results)
@@ -124,7 +122,8 @@ plot_performance_comparison(results)
 
 ## Working with Single Datasets
 
-For a single dataset that needs to be clustered:
+For a single dataset that needs to be clustered (set cluster_ind = TRUE
+in this case):
 
 ``` r
 # Combine training data
@@ -179,14 +178,14 @@ bind_rows(
 #> # A tibble: 8 × 4
 #>   simulation method      avg_rmse sd_rmse
 #>   <chr>      <chr>          <dbl>   <dbl>
-#> 1 Gaussian   merged          7.97  0.0839
-#> 2 Monte      merged          6.88  0.587 
-#> 3 Gaussian   stack_lasso     9.40  0.528 
-#> 4 Monte      stack_lasso     5.14  0.257 
-#> 5 Gaussian   stack_ridge     8.75  0.401 
-#> 6 Monte      stack_ridge     5.18  0.276 
-#> 7 Gaussian   unweighted      8.64  0.167 
-#> 8 Monte      unweighted      8.15  0.681
+#> 1 Gaussian   merged          7.94   0.120
+#> 2 Monte      merged          7.10   0.649
+#> 3 Gaussian   stack_lasso     9.40   0.427
+#> 4 Monte      stack_lasso     5.39   0.165
+#> 5 Gaussian   stack_ridge     8.67   0.273
+#> 6 Monte      stack_ridge     5.43   0.188
+#> 7 Gaussian   unweighted      8.27   0.368
+#> 8 Monte      unweighted      8.42   0.676
 ```
 
 ## Tips and Best Practices
@@ -235,7 +234,7 @@ sessionInfo()
 #> [10] cluster_2.1.6           yardstick_1.3.1         survival_3.7-0         
 #> [13] magrittr_2.0.3          compiler_4.3.2          rlang_1.1.4            
 #> [16] tools_4.3.2             utf8_1.2.4              yaml_2.3.10            
-#> [19] data.table_1.15.4       clusterGeneration_1.3.8 knitr_1.48             
+#> [19] data.table_1.15.4       knitr_1.48              clusterGeneration_1.3.8
 #> [22] labeling_0.4.3          bit_4.0.5               DiceDesign_1.10        
 #> [25] parsnip_1.2.1           nleqslv_3.3.5           withr_3.0.1            
 #> [28] purrr_1.0.2             workflows_1.1.4         nnet_7.3-19            
@@ -244,8 +243,8 @@ sessionInfo()
 #> [37] globals_0.16.3          scales_1.3.0            iterators_1.0.14       
 #> [40] MASS_7.3-60.0.1         cli_3.6.3               mvtnorm_1.3-2          
 #> [43] rmarkdown_2.27          generics_0.1.3          rstudioapi_0.16.0      
-#> [46] future.apply_1.11.2     CVXR_1.0-15             splines_4.3.2          
-#> [49] dials_1.3.0             parallel_4.3.2          fungible_2.4.4         
+#> [46] future.apply_1.11.2     CVXR_1.0-15             dials_1.3.0            
+#> [49] splines_4.3.2           parallel_4.3.2          fungible_2.4.4         
 #> [52] vctrs_0.6.5             hardhat_1.4.0           bit64_4.0.5            
 #> [55] clue_0.3-66             pbmcapply_1.5.1         listenv_0.9.1          
 #> [58] foreach_1.5.2           gower_1.0.1             tidyr_1.3.1            
