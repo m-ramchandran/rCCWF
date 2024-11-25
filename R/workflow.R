@@ -22,10 +22,8 @@ cluster_ensemble_workflow <- function(train_data,
                                       n_cores = 2,
                                       seed = NULL) {
   # Process test data
-  test_data <- if (!is.list(test_data)) {
-    list(test_data)
-  } else {
-    test_data
+  if (length(dim(test_data[[1]])) == 0) {
+    test_data <- list(test_data)
   }
 
   # Fit models
@@ -88,16 +86,7 @@ cluster_ensemble_workflow <- function(train_data,
     fitted_models = fitted_models,
     predictions = purrr::map(test_data, ~ crosscluster_predict(fitted_models, .)),
     individual_performance = performance_list,
-    average_performance = avg_performance,
-    input_info = list(
-      n_train_clusters = length(clusters_list),
-      n_test_sets = length(test_data),
-      outcome_col = outcome_col,
-      merged_trees = merged_trees,
-      cluster_trees = cluster_trees,
-      cluster_ind = cluster_ind,
-      seed = seed
-    )
+    average_performance = avg_performance
   )
 }
 
@@ -113,6 +102,7 @@ plot_performance_comparison <- function(workflow_results) {
   # Extract performance data
   perf_data <- workflow_results$average_performance
 
+
   # Create plot
   metric_col <- if (length(workflow_results$predictions) > 1) {
     paste0("avg_", metric)
@@ -121,6 +111,10 @@ plot_performance_comparison <- function(workflow_results) {
   }
 
   sd_col <- paste0("sd_", metric)
+
+  if (!(sd_col %in% colnames(perf_data))){
+    perf_data <- perf_data |> dplyr::mutate(!!sd_col := 0)
+  }
 
   plot <- ggplot2::ggplot(
     perf_data,

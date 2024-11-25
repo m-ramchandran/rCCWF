@@ -62,9 +62,23 @@ results <- cluster_ensemble_workflow(
   merged_trees = 500,
   cluster_trees = 100
 )
+```
 
-# Examine performance
-results$average_performance
+## Using k-means clustering on data that is partitioned
+
+If you already have data that's naturally clustered or split:
+
+```{r}
+# Use the pre-clustered data directly
+results <- cluster_ensemble_workflow(
+  train_data = sim_data$clusters_list,
+  test_data = sim_data$test_list,
+  cluster_ind = TRUE,  # We do perform additional clustering
+  merged_trees = 500,
+  cluster_trees = 100
+)
+
+print(results$average_performance)
 ```
 
 ## Understanding the Predictions
