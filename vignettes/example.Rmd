@@ -1,0 +1,172 @@
+---
+title: "Cross-Cluster Weighted Forests"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Cross-Cluster Weighted Forests}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 7,
+  fig.height = 5
+)
+```
+
+## Introduction
+
+The `rCCWF` package implements Cross-Cluster Weighted Forests, a novel ensemble learning approach that combines clustering with random forests to improve prediction accuracy. This method is particularly effective when dealing with heterogeneous data that naturally forms clusters or when different subpopulations exist within your dataset.
+
+First, let's load the necessary packages:
+
+```{r}
+library(rCCWF)
+library(dplyr)
+library(ggplot2)
+```
+
+## Basic Usage
+
+Let's start with a simple example using simulated data:
+
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Simulate data with known clusters
+sim_data <- sim_data_monte(
+  nclusters = 5,  # Number of training clusters
+  ncoef = 20,     # Number of predictor variables
+  ntest = 2       # Number of test datasets
+)
+
+# Examine the structure
+names(sim_data)
+```
+
+## Working with Pre-clustered Data
+
+If you already have data that's naturally clustered or split:
+
+```{r}
+# Use the pre-clustered data directly
+results <- cluster_ensemble_workflow(
+  train_data = sim_data$clusters_list,
+  test_data = sim_data$test_list,
+  cluster_ind = FALSE,  # Don't perform additional clustering
+  merged_trees = 500,
+  cluster_trees = 100
+)
+
+# Examine performance
+results$average_performance
+```
+
+## Understanding the Predictions
+
+The package provides four types of predictions:
+
+1. `merged`: Predictions from a single random forest trained on all data
+2. `unweighted`: Simple average of individual cluster model predictions
+3. `stack_ridge`: Ridge regression weighted combination
+4. `stack_lasso`: Lasso regression weighted combination
+
+```{r}
+# Examine predictions for first test set
+head(results$predictions[[1]])
+```
+
+## Performance Comparison
+
+Let's compare the performance of different methods:
+
+```{r}
+# For multiple test sets
+print(results$average_performance)
+
+# Visualize performance
+plot_performance_comparison(results)
+```
+
+## Working with Single Datasets
+
+For a single dataset that needs to be clustered:
+
+```{r}
+# Combine training data
+combined_train <- sim_data$clusters_list |> dplyr::bind_rows()
+test_data <- sim_data$test_list[[1]]
+
+# Run workflow with automatic clustering
+results_single <- cluster_ensemble_workflow(
+  train_data = combined_train,
+  test_data = test_data,
+  n_clusters = 5,
+  cluster_ind = TRUE,
+  merged_trees = 500,
+  cluster_trees = 100
+)
+
+# Plot performance comparison
+plot_performance_comparison(results_single)
+```
+
+
+## Advanced Usage: Simulation Studies
+
+The package includes functions for simulation studies:
+
+```{r}
+# Compare Gaussian and non-Gaussian clusters
+gaussian_data <- sim_data_gaussian(5, 20, 2)
+monte_data <- sim_data_monte(5, 20, 2)
+
+# Run analysis on both
+results_gaussian <- cluster_ensemble_workflow(
+  train_data = gaussian_data$clusters_list,
+  test_data = gaussian_data$test_list,
+  cluster_ind = FALSE
+)
+
+results_monte <- cluster_ensemble_workflow(
+  train_data = monte_data$clusters_list,
+  test_data = monte_data$test_list,
+  cluster_ind = FALSE
+)
+
+# Compare results
+bind_rows(
+  Gaussian = results_gaussian$average_performance,
+  Monte = results_monte$average_performance,
+  .id = "simulation"
+) |>
+  arrange(method)
+```
+
+## Tips and Best Practices
+
+1. **Choosing the Number of Clusters**
+   - Start with domain knowledge if available
+   - Try different values and compare performance
+   - Consider the silhouette score or other clustering metrics
+
+2. **Tree Parameters**
+   - Use more trees (`merged_trees`) for the merged model
+   - Fewer trees (`cluster_trees`) for individual cluster models
+   - Balance computation time vs. performance
+
+3. **When to Use CCWF**
+   - Heterogeneous data with natural clusters, multiple datasets
+   - I.e. large datasets with potential subpopulations, data prone to batch effects, etc.
+
+## Session Info
+
+```{r}
+sessionInfo()
+```
+```
