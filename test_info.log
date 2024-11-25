@@ -9,7 +9,7 @@ cluster nearestClust nearestSep farthestClust farthestSep medianSep fileName
 Empirical separation information data frame>>>>>>>>>>>
 
 cluster nearestClust nearestSep farthestClust farthestSep medianSep fileName
-1	2	0.803	2	0.803	0.803	test_1
-2	1	0.803	1	0.803	0.803	test_1
-1	2	0.8	2	0.8	0.8	test_2
-2	1	0.8	1	0.8	0.8	test_2
+1	2	0.8	2	0.8	0.8	test_1
+2	1	0.8	1	0.8	0.8	test_1
+1	2	0.804	2	0.804	0.804	test_2
+2	1	0.804	1	0.804	0.804	test_2

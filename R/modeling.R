@@ -32,6 +32,7 @@ rf_predict <- function(model, newdata) {
 #' @param merged_trees Number of trees for merged model
 #' @param cluster_trees Number of trees for individual cluster models
 #' @param cluster_ind Boolean representing if we should perform k-means clustering on the merged train_data or keep the original structure
+#' @param n_clusters Number of clusters for k-means. Only used if cluster_ind = TRUE
 #' @param n_cores Number of cores for parallel processing (default = 2)
 #' @return List of fitted models and weights
 #' @export
@@ -42,6 +43,7 @@ crosscluster_fit <- function(train_data,
                              merged_trees = 500,
                              cluster_trees = 100,
                              cluster_ind = TRUE,
+                             n_clusters = 10,
                              n_cores = 2) {
   # Set up parallel processing
   future::plan(future::multisession, workers = n_cores)

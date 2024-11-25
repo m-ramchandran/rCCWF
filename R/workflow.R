@@ -35,6 +35,7 @@ cluster_ensemble_workflow <- function(train_data,
     merged_trees = merged_trees,
     cluster_trees = cluster_trees,
     cluster_ind = cluster_ind,
+    n_clusters = n_clusters,
     n_cores = n_cores
   )
 
