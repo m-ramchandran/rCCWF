@@ -16,7 +16,8 @@ rf_fit(data, outcome_col, ntrees = 100)
 (default: 100)}
 }
 \value{
-A fitted random forest model object of class 'model_fit'
+Returns a fitted random forest model object of class 'model_fit' from the parsnip package,
+using the ranger engine with permutation importance enabled.
 }
 \description{
 Fit a Random Forest Model

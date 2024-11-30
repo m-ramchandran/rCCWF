@@ -12,8 +12,11 @@ absnorm(vec, max.norm = FALSE)
 \item{max.norm}{Logical, whether to use maximum normalization (default: FALSE)}
 }
 \value{
-Normalized vector where each element is multiplied by its original sign
-and divided by the sum of absolute differences from min/max
+Returns a numeric vector of the same length as the input, where each element is:
+1. Multiplied by its original sign
+2. Normalized by dividing by the sum of absolute differences from either:
+- The minimum value (if max.norm = FALSE)
+- The maximum value (if max.norm = TRUE)
 }
 \description{
 Absolute normalization of a vector

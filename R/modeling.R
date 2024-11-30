@@ -9,9 +9,10 @@ NULL
 #' @param ntrees Integer specifying the number of trees in the forest
 #'        (default: 100)
 #'
-#' @importFrom parsnip rand_forest set_engine fit
+#' @returns Returns a fitted random forest model object of class 'model_fit' from the parsnip package,
+#'          using the ranger engine with permutation importance enabled.
 #'
-#' @return A fitted random forest model object of class 'model_fit'
+#' @importFrom parsnip rand_forest set_engine fit
 rf_fit <- function(data, outcome_col, ntrees = 100) {
   parsnip::rand_forest(mode = "regression", trees = ntrees) |>
     parsnip::set_engine("ranger", importance = "permutation") |>
@@ -23,9 +24,9 @@ rf_fit <- function(data, outcome_col, ntrees = 100) {
 #' @param model A fitted model object from rf_fit()
 #' @param newdata A data frame or tibble containing new data for prediction
 #'
-#' @importFrom stats predict
+#' @returns Returns a numeric vector containing the predicted values for the new data
 #'
-#' @return A numeric vector of predictions
+#' @importFrom stats predict
 rf_predict <- function(model, newdata) {
   stats::predict(model, new_data = newdata)$.pred
 }
@@ -42,13 +43,24 @@ rf_predict <- function(model, newdata) {
 #' @param n_clusters Number of clusters for k-means. Only used if cluster_ind = TRUE
 #' @param n_cores Number of cores for parallel processing (default = 2)
 #'
+#' @returns Returns a list containing:
+#'   \item{merged_model}{A single random forest model fitted on all data combined}
+#'   \item{cluster_models}{List of models, one fitted to each cluster}
+#'   \item{stack_ridge}{Fitted ridge regression model for the stacking component}
+#'   \item{stack_lasso}{Fitted lasso regression model for the stacking component}
+#'   \item{stack_ridge_lambda}{Optimal lambda value for ridge regression}
+#'   \item{stack_lasso_lambda}{Optimal lambda value for lasso regression}
+#'   \item{stack_ridge_coef}{Coefficients from ridge regression stacking model}
+#'   \item{stack_lasso_coef}{Coefficients from lasso regression stacking model}
+#'   \item{model_fit}{The base ensemble member fitting function used}
+#'   \item{model_predict}{The base ensemble member prediction function used}
+#'
 #' @importFrom future plan multisession sequential
 #' @importFrom dplyr bind_rows select pull
 #' @importFrom furrr future_map furrr_options
 #' @importFrom glmnet cv.glmnet
 #' @importFrom stats coef setNames predict
 #'
-#' @return List of fitted models and weights
 #' @export
 crosscluster_fit <- function(train_data,
                              outcome_col = "y",
@@ -159,7 +171,7 @@ crosscluster_fit <- function(train_data,
 #' @importFrom dplyr bind_cols
 #' @importFrom tibble tibble
 #'
-#' @return Tibble with predictions from all methods
+#' @returns Tibble with predictions from all methods
 #' @export
 crosscluster_predict <- function(ccwf_fit, new_data) {
   merged_preds <- stats::predict(ccwf_fit$merged_model, new_data)$.pred

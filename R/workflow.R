@@ -17,6 +17,12 @@ utils::globalVariables(c(".metric", ".estimate", "truth", "estimate", "method", 
 #' @param n_cores Number of cores for parallel processing (default: 2)
 #' @param seed Random seed (default: NULL)
 #'
+#' @returns Returns a list containing:
+#'   \item{fitted_models}{The fitted cross-cluster model objects}
+#'   \item{predictions}{A list of predictions for each test dataset}
+#'   \item{individual_performance}{A list of performance metrics for each test dataset}
+#'   \item{average_performance}{A data frame of averaged performance metrics across all test sets}
+#'
 #' @importFrom yardstick rmse
 #' @importFrom tidyr pivot_wider
 #' @importFrom dplyr bind_rows group_by summarize
@@ -107,6 +113,10 @@ cluster_ensemble_workflow <- function(train_data,
 #'
 #' @param workflow_results Output from cluster_ensemble_workflow
 #' @return ggplot object
+#'
+#' @returns Returns a ggplot2 object displaying a bar plot comparing performance metrics
+#'   (RMSE) across different methods, with error bars representing standard deviation
+#'   when multiple test sets are evaluated
 #'
 #' @importFrom ggplot2 ggplot aes geom_col geom_errorbar labs theme_minimal theme element_text
 #' @importFrom dplyr mutate

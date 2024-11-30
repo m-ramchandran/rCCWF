@@ -35,6 +35,13 @@ cluster_ensemble_workflow(
 
 \item{seed}{Random seed (default: NULL)}
 }
+\value{
+Returns a list containing:
+\item{fitted_models}{The fitted cross-cluster model objects}
+\item{predictions}{A list of predictions for each test dataset}
+\item{individual_performance}{A list of performance metrics for each test dataset}
+\item{average_performance}{A data frame of averaged performance metrics across all test sets}
+}
 \description{
 Implements a cluster ensemble workflow for prediction
 }

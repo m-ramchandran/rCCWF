@@ -7,12 +7,19 @@ NULL
 #' @param ncoef Number of coefficients
 #' @param ntest Number of test datasets to simulate
 #'
+#' @returns Returns a list with two components:
+#'   \item{clusters_list}{A list of training data tibbles, one per cluster. Each tibble contains:
+#'     \itemize{
+#'       \item y: The simulated outcome variable
+#'       \item V1...Vn: The simulated predictor variables, where n equals ncoef
+#'     }
+#'   }
+#'   \item{test_list}{A list of test data tibbles. Each tibble has the same structure as the training data}
+#'
 #' @importFrom stats rnorm runif
 #' @importFrom clusterGeneration genRandomClust
 #' @importFrom tibble as_tibble
 #'
-#' @return List containing two sublists: 'cluster_list' has the simulated training clusters,
-#'         and 'test_list' has the simulated test sets
 #' @export
 sim_data_gaussian <- function(nclusters, ncoef, ntest) {
   nchoose <- min(10, ncoef)
@@ -108,12 +115,19 @@ sim_data_gaussian <- function(nclusters, ncoef, ntest) {
 #' @param ncoef Number of coefficients
 #' @param ntest Number of test datasets to simulate
 #'
+#' @returns Returns a list with two components:
+#'   \item{clusters_list}{A list of training data tibbles, one per cluster. Each tibble contains:
+#'     \itemize{
+#'       \item y: The simulated outcome variable generated using linear, quadratic, and interaction terms
+#'       \item V1...Vn: The simulated predictor variables, where n equals ncoef, generated using monte carlo methods
+#'     }
+#'   }
+#'   \item{test_list}{A list of test data tibbles. Each tibble has the same structure as the training data}
+#'
 #' @importFrom stats rnorm runif
 #' @importFrom fungible monte
 #' @importFrom tibble as_tibble
 #'
-#' @return List containing two sublists: 'cluster_list' has the simulated training clusters,
-#'         and 'test_list' has the simulated test sets
 #' @export
 sim_data_monte <- function(nclusters, ncoef, ntest) {
   clusters_list <- vector("list", nclusters)

@@ -14,8 +14,14 @@ sim_data_gaussian(nclusters, ncoef, ntest)
 \item{ntest}{Number of test datasets to simulate}
 }
 \value{
-List containing two sublists: 'cluster_list' has the simulated training clusters,
-and 'test_list' has the simulated test sets
+Returns a list with two components:
+\item{clusters_list}{A list of training data tibbles, one per cluster. Each tibble contains:
+\itemize{
+\item y: The simulated outcome variable
+\item V1...Vn: The simulated predictor variables, where n equals ncoef
+}
+}
+\item{test_list}{A list of test data tibbles. Each tibble has the same structure as the training data}
 }
 \description{
 Simulate Gaussian mixture data

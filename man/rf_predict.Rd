@@ -12,7 +12,7 @@ rf_predict(model, newdata)
 \item{newdata}{A data frame or tibble containing new data for prediction}
 }
 \value{
-A numeric vector of predictions
+Returns a numeric vector containing the predicted values for the new data
 }
 \description{
 Make Predictions with a Fitted Random Forest Model

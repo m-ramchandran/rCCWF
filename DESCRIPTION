@@ -7,7 +7,8 @@ Authors@R: person(given = "Maya",
                  family = "Ramchandran",
                  role = c("aut", "cre"),
                  email = "ramchandran.maya@gmail.com")
-Description: Implements the Cross-Cluster Weighted Forests method for ensemble learning across multiple clusters or datasets.  The methodology is based on the paper <doi:10.48550/arXiv.2105.07610>.
+Description: Implements the Cross-Cluster Weighted Forests method for ensemble learning across multiple clusters or datasets. The methodology is based on
+    Ramchandran et al. (2021) <doi:10.48550/arXiv.2105.07610>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

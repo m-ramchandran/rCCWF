@@ -7,14 +7,21 @@
 create_clusters(train_data, n_clusters, outcome_col = "y")
 }
 \arguments{
-\item{train_data}{Training dataset (tibble/data.frame)}
+\item{train_data}{Training dataset (tibble or data.frame)}
 
 \item{n_clusters}{Number of clusters to create}
 
 \item{outcome_col}{Name of outcome column}
 }
 \value{
-List containing cluster assignments and clustered data
+Returns a list containing:
+\item{clusters}{A list of tibbles, one per cluster, of the partitioned original data.
+Clusters with 2 or fewer observations
+are removed.}
+\item{kmeans_fit}{The fitted kmeans object containing cluster assignments and
+additional clustering statistics}
+\item{recipe}{The prepped recipe object used for data normalization}
+\item{centers}{Matrix of cluster centers from the kmeans fit}
 }
 \description{
 Create clusters from training data

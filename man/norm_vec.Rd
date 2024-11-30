@@ -10,7 +10,8 @@ norm_vec(x)
 \item{x}{Numeric vector to normalize}
 }
 \value{
-Normalized vector with Euclidean (L2) norm
+Returns a numeric value representing the Euclidean (L2) norm of the input vector.
+This is calculated as the square root of the sum of squared elements.
 }
 \description{
 Normalize a vector

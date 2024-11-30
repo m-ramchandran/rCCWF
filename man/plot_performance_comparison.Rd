@@ -11,6 +11,10 @@ plot_performance_comparison(workflow_results)
 }
 \value{
 ggplot object
+
+Returns a ggplot2 object displaying a bar plot comparing performance metrics
+(RMSE) across different methods, with error bars representing standard deviation
+when multiple test sets are evaluated
 }
 \description{
 Plot performance comparison across methods
